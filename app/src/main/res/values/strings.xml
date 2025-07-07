@@ -1,0 +1,44 @@
+<resources>
+    <string name="app_name">OrbitSong</string>
+
+    <!-- Mensajes principales -->
+    <string name="welcome_message">¡Buen día, %s!</string>
+    <string name="subtitle_message">Descubre nueva música desde Spotify</string>
+
+    <!-- Acciones -->
+    <string name="search_hint">Buscar música en tiempo real...</string>
+    <string name="search_spotify">Buscar en Spotify</string>
+    <string name="voice_search">Búsqueda por voz</string>
+    <string name="refresh_music">Actualizar</string>
+    <string name="add_to_favorites">Agregar a favoritos</string>
+    <string name="remove_from_favorites">Quitar de favoritos</string>
+
+    <!-- Secciones -->
+    <string name="quick_actions">Acciones Rápidas</string>
+    <string name="available_music">Música Disponible</string>
+    <string name="trending">Tendencias</string>
+    <string name="favorites">Mis Favoritos</string>
+    <string name="playlists">Mis Playlists</string>
+
+    <!-- Estados -->
+    <string name="loading_music">Cargando música...</string>
+    <string name="empty_state_message">¡Busca música en Spotify para comenzar!</string>
+    <string name="no_preview_available">Preview no disponible</string>
+    <string name="preview_available">Preview de 30s</string>
+
+    <!-- Reproductor -->
+    <string name="play">Reproducir</string>
+    <string name="pause">Pausar</string>
+    <string name="next">Siguiente</string>
+    <string name="previous">Anterior</string>
+
+    <!-- Errores -->
+    <string name="error_connection">Error de conexión</string>
+    <string name="error_loading_music">Error al cargar música</string>
+    <string name="error_playing_music">Error al reproducir música</string>
+
+    <!-- Formatos -->
+    <string name="songs_found">%d canciones encontradas</string>
+    <string name="song_duration">%s</string>
+    <string name="popularity_percent">%d%%</string>
+</resources>

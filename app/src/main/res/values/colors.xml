@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Colores principales -->
+    <color name="primary_blue">#1e3c72</color>
+    <color name="secondary_blue">#2a5298</color>
+    <color name="accent_purple">#6441a5</color>
+    <color name="spotify_green">#1DB954</color>
+
+    <!-- Colores de fondo -->
+    <color name="background_primary">#121212</color>
+    <color name="background_secondary">#1e1e1e</color>
+    <color name="card_background">#2a2a2a</color>
+    <color name="card_background_translucent">#40FFFFFF</color>
+
+    <!-- Colores de texto -->
+    <color name="white">#FFFFFF</color>
+    <color name="white_translucent">#B3FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="text_secondary">#B3FFFFFF</color>
+
+    <!-- Colores de estado -->
+    <color name="success">#4CAF50</color>
+    <color name="error">#F44336</color>
+    <color name="warning">#FF9800</color>
+    <color name="orange">#FF6B35</color>
+
+    <!-- Colores adicionales -->
+    <color name="transparent">#00000000</color>
+    <color name="gradient_start">#1e3c72</color>
+    <color name="gradient_center">#2a5298</color>
+    <color name="gradient_end">#6441a5</color>
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+
+    <color name="colorAccent">#03DAC5</color>
+    <color name="colorPrimary">#6200EE</color>
+    <color name="colorOnPrimary">#FFFFFF</color>
+</resources>
