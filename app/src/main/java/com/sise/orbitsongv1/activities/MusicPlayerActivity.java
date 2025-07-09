@@ -2,7 +2,11 @@ package com.sise.orbitsongv1.activities;
 
 import android.content.Context;
 import android.content.Intent;
+import android.media.AudioAttributes;
 import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -25,6 +29,9 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.sise.orbitsongv1.R;
 import com.sise.orbitsongv1.models.Song;
 import com.sise.orbitsongv1.services.MusicPlayerService;
+import com.sise.orbitsongv1.services.RetrofitClient;
+
+import java.util.Collections;
 
 public class MusicPlayerActivity extends AppCompatActivity implements MusicPlayerService.MusicPlayerListener {
 
@@ -65,9 +72,9 @@ public class MusicPlayerActivity extends AppCompatActivity implements MusicPlaye
         setupToolbar();
         setupMusicPlayer();
         setupListeners();
-        loadSongFromIntent();
+        setupTestingButtons();
 
-        // ✅ NUEVO: Verificar configuración de audio
+        loadSongFromIntent();
         checkAudioSettings();
     }
 
@@ -101,6 +108,7 @@ public class MusicPlayerActivity extends AppCompatActivity implements MusicPlaye
 
     private void setupMusicPlayer() {
         musicPlayer = MusicPlayerService.getInstance();
+        musicPlayer.initialize(this);
         musicPlayer.setListener(this);
 
         // Configurar handler para actualizar progreso
@@ -114,6 +122,70 @@ public class MusicPlayerActivity extends AppCompatActivity implements MusicPlaye
                 }
             }
         };
+
+        Log.d(TAG, "✅ MusicPlayerService configurado en MusicPlayerActivity");
+    }
+
+    // ========================================
+    // SETUP DE TESTING BUTTONS
+    // ========================================
+
+    private void setupTestingButtons() {
+        // Test con long click en el botón de play
+        fabPlayPause.setOnLongClickListener(v -> {
+            Log.d(TAG, "🧪 Long click PLAY - Ejecutando test con URL conocida");
+            musicPlayer.testWithKnownWorkingUrl();
+            showToast("🧪 Testing con URL conocida - revisa logs");
+            return true;
+        });
+
+        // Test de conectividad con long click en botón anterior
+        btnPrevious.setOnLongClickListener(v -> {
+            Log.d(TAG, "🧪 Long click ANTERIOR - Test de conectividad");
+            musicPlayer.testBasicConnectivity();
+            showToast("🧪 Testing conectividad - revisa logs");
+            return true;
+        });
+
+        // Test de configuración de audio con long click en botón siguiente
+        btnNext.setOnLongClickListener(v -> {
+            Log.d(TAG, "🧪 Long click SIGUIENTE - Test configuración audio");
+            musicPlayer.testDeviceAudioConfig();
+            showToast("🧪 Testing audio config - revisa logs");
+            return true;
+        });
+
+        // Test completo con long click en botón de favorito
+        btnFavorite.setOnLongClickListener(v -> {
+            Log.d(TAG, "🧪 Long click FAVORITO - Test completo");
+            musicPlayer.runCompleteTest();
+            showToast("🧪 Test completo iniciado - revisa logs");
+            return true;
+        });
+
+        // Test de backend con long click en botón de repetir
+        btnRepeat.setOnLongClickListener(v -> {
+            Log.d(TAG, "🧪 Long click REPETIR - Test backend");
+            testBackendPreviewStatus();
+            showToast("🧪 Testing backend - revisa logs");
+            return true;
+        });
+
+        // Test de shuffle con long click en botón de aleatorio
+        btnShuffle.setOnLongClickListener(v -> {
+            Log.d(TAG, "🧪 Long click SHUFFLE - Debug estado actual");
+            debugMusicPlayerState();
+            showToast("🧪 Debug estado - revisa logs");
+            return true;
+        });
+
+        Log.d(TAG, "🧪 Testing buttons configurados:");
+        Log.d(TAG, "   🎵 Long click PLAY = Test URL conocida");
+        Log.d(TAG, "   🔙 Long click ANTERIOR = Test conectividad");
+        Log.d(TAG, "   ▶️ Long click SIGUIENTE = Test audio config");
+        Log.d(TAG, "   ❤️ Long click FAVORITO = Test completo");
+        Log.d(TAG, "   🔄 Long click REPETIR = Test backend");
+        Log.d(TAG, "   🔀 Long click SHUFFLE = Debug estado");
     }
 
     private void setupListeners() {
@@ -122,12 +194,10 @@ public class MusicPlayerActivity extends AppCompatActivity implements MusicPlaye
 
         // Botones de navegación
         btnPrevious.setOnClickListener(v -> {
-            // TODO: Implementar canción anterior
             showToast("Función de canción anterior no implementada aún");
         });
 
         btnNext.setOnClickListener(v -> {
-            // TODO: Implementar canción siguiente
             showToast("Función de canción siguiente no implementada aún");
         });
 
@@ -173,7 +243,7 @@ public class MusicPlayerActivity extends AppCompatActivity implements MusicPlaye
                 playSong(currentSong);
             } else {
                 Log.e(TAG, "❌ No se pudo obtener la canción del intent");
-                showToast("Error: No se pudo cargar la canción");
+                showToast("Error: No se pudo cargar la información de la canción");
                 finish();
             }
         } else {
@@ -183,26 +253,116 @@ public class MusicPlayerActivity extends AppCompatActivity implements MusicPlaye
         }
     }
 
-    // ✅ MÉTODO NUEVO: Verificar configuración de audio
+    // ========================================
+    // MÉTODOS DE TESTING DEL BACKEND
+    // ========================================
+
+    private void testBackendPreviewStatus() {
+        Log.d(TAG, "🔍 === TESTING BACKEND PREVIEW STATUS ===");
+
+        // Test 1: Health check del backend
+        RetrofitClient.getInstance().getApiService().healthCheck()
+                .enqueue(new retrofit2.Callback<Object>() {
+                    @Override
+                    public void onResponse(retrofit2.Call<Object> call, retrofit2.Response<Object> response) {
+                        if (response.isSuccessful()) {
+                            Log.d(TAG, "✅ Backend Health Check OK");
+                            Log.d(TAG, "📊 Response: " + response.body());
+                            showToast("✅ Backend OK");
+
+                            // Si el backend responde, probar debug de preview
+                            testBackendPreviewDebug();
+                        } else {
+                            Log.e(TAG, "❌ Backend Health Check falló: " + response.code());
+                            showToast("❌ Backend error: " + response.code());
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(retrofit2.Call<Object> call, Throwable t) {
+                        Log.e(TAG, "❌ Backend no disponible", t);
+                        showToast("❌ Backend no disponible: " + t.getMessage());
+                    }
+                });
+    }
+
+    private void testBackendPreviewDebug() {
+        RetrofitClient.getInstance().getApiService().debugPreviewPublic()
+                .enqueue(new retrofit2.Callback<Object>() {
+                    @Override
+                    public void onResponse(retrofit2.Call<Object> call, retrofit2.Response<Object> response) {
+                        if (response.isSuccessful()) {
+                            Log.d(TAG, "✅ Backend Preview Debug OK");
+                            Log.d(TAG, "📊 Preview Status: " + response.body());
+                            showToast("✅ Preview Debug OK - revisa logs");
+
+                            // Test final: múltiples artistas
+                            testBackendMultipleArtists();
+                        } else {
+                            Log.e(TAG, "❌ Preview Debug falló: " + response.code());
+                            showToast("❌ Preview Debug error: " + response.code());
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(retrofit2.Call<Object> call, Throwable t) {
+                        Log.e(TAG, "❌ Preview Debug error", t);
+                        showToast("❌ Preview Debug error: " + t.getMessage());
+                    }
+                });
+    }
+
+    private void testBackendMultipleArtists() {
+        RetrofitClient.getInstance().getApiService().testMultipleArtists()
+                .enqueue(new retrofit2.Callback<Object>() {
+                    @Override
+                    public void onResponse(retrofit2.Call<Object> call, retrofit2.Response<Object> response) {
+                        if (response.isSuccessful()) {
+                            Log.d(TAG, "✅ Multiple Artists Test OK");
+                            Log.d(TAG, "📊 Artists Test: " + response.body());
+                            showToast("✅ Artists Test OK - el backend funciona correctamente");
+                        } else {
+                            Log.e(TAG, "❌ Multiple Artists Test falló: " + response.code());
+                            showToast("❌ Artists Test error: " + response.code());
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(retrofit2.Call<Object> call, Throwable t) {
+                        Log.e(TAG, "❌ Multiple Artists Test error", t);
+                        showToast("❌ Artists Test error: " + t.getMessage());
+                    }
+                });
+    }
+
+    // ========================================
+    // MÉTODOS DE AUDIO Y TESTING
+    // ========================================
+
     private void checkAudioSettings() {
         try {
-            // Verificar volumen del sistema
             AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 
             int currentVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
             int maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
 
-            Log.d(TAG, "🔊 DEBUG Audio:");
+            Log.d(TAG, "🔊 DEBUG Audio Completo:");
             Log.d(TAG, "   📊 Volumen actual: " + currentVolume + "/" + maxVolume);
             Log.d(TAG, "   🎵 Stream música activo: " + (currentVolume > 0));
 
-            // Si el volumen está muy bajo, avisar al usuario
+            // Verificar porcentaje de volumen
+            float volumePercent = maxVolume > 0 ? (float) currentVolume / maxVolume * 100 : 0;
+            Log.d(TAG, "   📈 Porcentaje volumen: " + String.format("%.1f%%", volumePercent));
+
+            // Alertas según el volumen
             if (currentVolume == 0) {
                 showToast("⚠️ El volumen está silenciado. Sube el volumen para escuchar música.");
-                Log.w(TAG, "⚠️ Volumen en 0, el usuario no escuchará nada");
+                Log.w(TAG, "⚠️ CRÍTICO: Volumen en 0, el usuario no escuchará nada");
             } else if (currentVolume < maxVolume * 0.3) {
-                showToast("🔊 El volumen está bajo. Considera subirlo para mejor experiencia.");
+                showToast("🔊 El volumen está bajo (" + currentVolume + "/" + maxVolume + "). Considera subirlo.");
                 Log.w(TAG, "⚠️ Volumen bajo: " + currentVolume + "/" + maxVolume);
+            } else {
+                Log.d(TAG, "✅ Volumen adecuado: " + currentVolume + "/" + maxVolume);
             }
 
             // Verificar modo de sonido
@@ -214,17 +374,115 @@ public class MusicPlayerActivity extends AppCompatActivity implements MusicPlaye
                     break;
                 case AudioManager.RINGER_MODE_VIBRATE:
                     Log.w(TAG, "⚠️ Dispositivo en modo vibración");
-                    showToast("⚠️ Dispositivo en modo vibración");
+                    showToast("⚠️ Dispositivo en modo vibración - sube el volumen");
                     break;
                 case AudioManager.RINGER_MODE_NORMAL:
                     Log.d(TAG, "✅ Dispositivo en modo normal");
                     break;
             }
 
+            // Verificar si hay auriculares conectados
+            boolean isWiredHeadsetOn = audioManager.isWiredHeadsetOn();
+            boolean isBluetoothA2dpOn = audioManager.isBluetoothA2dpOn();
+            Log.d(TAG, "   🎧 Auriculares cableados: " + isWiredHeadsetOn);
+            Log.d(TAG, "   📶 Bluetooth audio: " + isBluetoothA2dpOn);
+
+            if (isWiredHeadsetOn) {
+                showToast("🎧 Auriculares conectados - perfecto para música");
+            } else if (isBluetoothA2dpOn) {
+                showToast("📶 Audio Bluetooth conectado");
+            }
+
         } catch (Exception e) {
             Log.e(TAG, "❌ Error verificando configuración de audio", e);
+            showToast("❌ Error verificando audio: " + e.getMessage());
         }
     }
+
+    private void debugMusicPlayerState() {
+        Log.d(TAG, "🔍 === DEBUG ESTADO COMPLETO ===");
+        Log.d(TAG, "MusicPlayer:");
+        Log.d(TAG, "   ▶️ isPlaying: " + musicPlayer.isPlaying());
+        Log.d(TAG, "   🎵 currentSong: " + (musicPlayer.getCurrentSong() != null ? musicPlayer.getCurrentSong().getNombre() : "NULL"));
+        Log.d(TAG, "   ⏱️ position: " + musicPlayer.getCurrentPosition());
+        Log.d(TAG, "   📏 duration: " + musicPlayer.getDuration());
+
+        // Estado del sistema
+        AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        if (audioManager != null) {
+            Log.d(TAG, "Sistema Audio:");
+            Log.d(TAG, "   🔊 Volumen: " + audioManager.getStreamVolume(AudioManager.STREAM_MUSIC) +
+                    "/" + audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC));
+            Log.d(TAG, "   📱 Modo: " + audioManager.getRingerMode());
+            Log.d(TAG, "   🎧 Auriculares: " + audioManager.isWiredHeadsetOn());
+            Log.d(TAG, "   📶 Bluetooth: " + audioManager.isBluetoothA2dpOn());
+        }
+
+        // Estado de la canción actual
+        if (currentSong != null) {
+            Log.d(TAG, "Canción Actual:");
+            Log.d(TAG, "   📝 Nombre: " + currentSong.getNombre());
+            Log.d(TAG, "   🎤 Artistas: " + currentSong.getArtistasString());
+            Log.d(TAG, "   🔗 Preview URL: " + currentSong.getPreviewUrl());
+            Log.d(TAG, "   ✅ Has Preview: " + currentSong.hasPreview());
+            Log.d(TAG, "   ⏱️ Duración: " + currentSong.getDuracion());
+        }
+
+        Log.d(TAG, "=== FIN DEBUG ESTADO ===");
+    }
+
+    // Verificar accesibilidad de URL
+    private void testUrlAccessibility(String url) {
+        if (url == null || url.trim().isEmpty()) {
+            Log.e(TAG, "❌ URL es null o vacía");
+            return;
+        }
+
+        Log.d(TAG, "🌐 Verificando accesibilidad de URL: " + url);
+
+        // Test en hilo separado para no bloquear UI
+        new Thread(() -> {
+            try {
+                java.net.URL testUrl = new java.net.URL(url);
+                java.net.HttpURLConnection connection = (java.net.HttpURLConnection) testUrl.openConnection();
+                connection.setRequestMethod("HEAD");
+                connection.setConnectTimeout(5000);
+                connection.setReadTimeout(5000);
+                connection.connect();
+
+                int responseCode = connection.getResponseCode();
+                String contentType = connection.getContentType();
+                long contentLength = connection.getContentLengthLong();
+
+                connection.disconnect();
+
+                runOnUiThread(() -> {
+                    Log.d(TAG, "🌐 URL Response:");
+                    Log.d(TAG, "   📊 Code: " + responseCode);
+                    Log.d(TAG, "   📄 Type: " + contentType);
+                    Log.d(TAG, "   📏 Length: " + contentLength + " bytes");
+
+                    if (responseCode == 200) {
+                        Log.d(TAG, "✅ URL accesible");
+                        showToast("✅ URL accesible - Code: " + responseCode);
+                    } else {
+                        Log.w(TAG, "⚠️ URL respondió con código: " + responseCode);
+                        showToast("⚠️ URL código: " + responseCode);
+                    }
+                });
+
+            } catch (Exception e) {
+                runOnUiThread(() -> {
+                    Log.e(TAG, "❌ URL no accesible: " + e.getMessage());
+                    showToast("❌ URL no accesible: " + e.getMessage());
+                });
+            }
+        }).start();
+    }
+
+    // ========================================
+    // MÉTODOS PRINCIPALES
+    // ========================================
 
     private void displaySongInfo(Song song) {
         // Información básica
@@ -281,63 +539,78 @@ public class MusicPlayerActivity extends AppCompatActivity implements MusicPlaye
         }
     }
 
-    // ✅ MÉTODO MEJORADO: playSong con debug completo
+    // MÉTODO MEJORADO: playSong con debug completo y test de backend
     private void playSong(Song song) {
-        // 🔍 DEBUG: Mostrar información detallada
-        Log.d(TAG, "🔍 DEBUG playSong - Información completa:");
-        Log.d(TAG, "   📝 Nombre: " + song.getNombre());
+        Log.d(TAG, "🎵 === PLAYSONG MEJORADO CON BACKEND TEST ===");
+
+        // Debug de la canción
+        Log.d(TAG, "🔍 Song Debug:");
+        Log.d(TAG, "   📝 Nombre: " + (song.getNombre() != null ? song.getNombre() : "NULL"));
         Log.d(TAG, "   🎤 Artistas: " + song.getArtistasString());
         Log.d(TAG, "   🔗 Preview URL: " + song.getPreviewUrl());
         Log.d(TAG, "   ✅ Has Preview: " + song.hasPreview());
+        Log.d(TAG, "   🆔 ID: " + song.getId());
 
         if (!song.hasPreview()) {
-            showToast("⚠️ Esta canción no tiene preview, mostrando interfaz de demostración");
-            Log.w(TAG, "⚠️ Canción sin preview: " + song.getNombre());
+            Log.w(TAG, "⚠️ Canción sin preview - probando backend");
+            showToast("⚠️ Sin preview - probando backend...");
+
+            // Si no tiene preview, probar el backend para verificar si hay problema general
+            testBackendPreviewStatus();
 
             updatePlayPauseButton(true);
-            showToast("🎵 Modo demostración - Canción: " + song.getNombre());
+            simulateProgress();
             return;
         }
 
-        // 🔍 DEBUG: Verificar URL de preview
         String previewUrl = song.getPreviewUrl();
-        if (previewUrl != null) {
-            Log.d(TAG, "🔍 DEBUG: Preview URL completa: " + previewUrl);
 
-            // Verificar si es una URL válida
-            if (previewUrl.startsWith("http://") || previewUrl.startsWith("https://")) {
-                Log.d(TAG, "✅ Preview URL parece válida");
-            } else {
-                Log.w(TAG, "⚠️ Preview URL no parece válida: " + previewUrl);
-            }
+        // Debug exhaustivo de la URL
+        Log.d(TAG, "🔍 URL Debug completo:");
+        Log.d(TAG, "   🔗 URL completa: " + previewUrl);
+        Log.d(TAG, "   📏 Longitud: " + (previewUrl != null ? previewUrl.length() : "NULL"));
+        Log.d(TAG, "   🔒 Es HTTPS: " + (previewUrl != null && previewUrl.startsWith("https://")));
+        Log.d(TAG, "   🎵 Es Spotify: " + (previewUrl != null && previewUrl.contains("scdn.co")));
+
+        // Test de accesibilidad de URL
+        if (previewUrl != null && !previewUrl.trim().isEmpty()) {
+            testUrlAccessibility(previewUrl);
         }
 
-        Log.d(TAG, "🎵 Enviando canción al MusicPlayerService...");
+        Log.d(TAG, "🎵 Enviando al MusicPlayerService...");
         musicPlayer.playSong(song);
 
-        // 🔍 DEBUG: Verificar estado del reproductor después de llamar playSong
-        Log.d(TAG, "🔍 DEBUG: MusicPlayer isPlaying después de playSong: " + musicPlayer.isPlaying());
+        // Verificación después de 3 segundos
+        new Handler().postDelayed(() -> {
+            Log.d(TAG, "🔍 Verificación después de 3 segundos:");
+            Log.d(TAG, "   ▶️ isPlaying: " + musicPlayer.isPlaying());
+            Log.d(TAG, "   🎵 currentSong: " + (musicPlayer.getCurrentSong() != null ?
+                    musicPlayer.getCurrentSong().getNombre() : "NULL"));
+
+            if (!musicPlayer.isPlaying()) {
+                Log.w(TAG, "⚠️ No está reproduciendo - ejecutando test de audio");
+                musicPlayer.testDeviceAudioConfig();
+                showToast("⚠️ Problema de audio detectado - revisa logs");
+            }
+        }, 3000);
     }
 
-    // ✅ MÉTODO CORREGIDO: togglePlayPause - Manejar modo demostración
     private void togglePlayPause() {
         if (currentSong == null) {
             showToast("❌ No hay canción cargada");
             return;
         }
 
-        // 🔧 AGREGADO: Si no tiene preview, simular toggle
+        // Si no tiene preview, simular toggle
         if (!currentSong.hasPreview()) {
             boolean isCurrentlyPlaying = fabPlayPause.getContentDescription().equals("Pausar");
             updatePlayPauseButton(!isCurrentlyPlaying);
 
             if (!isCurrentlyPlaying) {
                 showToast("▶️ Simulando reproducción: " + currentSong.getNombre());
-                // Opcional: Simular progreso para demo
                 simulateProgress();
             } else {
                 showToast("⏸️ Simulando pausa");
-                // Detener simulación de progreso
                 progressHandler.removeCallbacks(progressRunnable);
             }
             return;
@@ -384,7 +657,6 @@ public class MusicPlayerActivity extends AppCompatActivity implements MusicPlaye
         tvCurrentTime.setText(timeString);
     }
 
-    // ✅ MÉTODO NUEVO: Simular progreso para canciones sin preview
     private void simulateProgress() {
         if (currentSong != null && currentSong.getDuracion() != null) {
             progressHandler.post(new Runnable() {
@@ -419,22 +691,191 @@ public class MusicPlayerActivity extends AppCompatActivity implements MusicPlaye
     }
 
     private void toggleRepeat() {
-        // TODO: Implementar modo repetir
         showToast("Función de repetir no implementada aún");
     }
 
     private void toggleShuffle() {
-        // TODO: Implementar modo aleatorio
         showToast("Función de aleatorio no implementada aún");
     }
 
     private void toggleFavorite() {
-        // TODO: Implementar favoritos
         showToast("Función de favoritos no implementada aún");
     }
 
     private void showToast(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    // ========================================
+    // MÉTODOS ADICIONALES DE TESTING
+    // ========================================
+
+    // Test directo con MediaPlayer básico
+    private void testDirectMediaPlayer() {
+        Log.d(TAG, "🧪 === TEST DIRECTO MEDIAPLAYER ===");
+
+        String testUrl = "https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3";
+
+        MediaPlayer testPlayer = new MediaPlayer();
+
+        try {
+            Log.d(TAG, "🔧 Configurando MediaPlayer básico...");
+
+            // Configuración mínima
+            testPlayer.setAudioAttributes(
+                    new AudioAttributes.Builder()
+                            .setUsage(AudioAttributes.USAGE_MEDIA)
+                            .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                            .build()
+            );
+
+            testPlayer.setDataSource(testUrl);
+
+            testPlayer.setOnPreparedListener(mp -> {
+                Log.d(TAG, "✅ TEST DIRECTO: MediaPlayer preparado");
+                try {
+                    mp.start();
+                    Log.d(TAG, "✅ TEST DIRECTO: Reproducción iniciada");
+                    showToast("✅ Test directo: Audio funciona");
+
+                    // Auto-detener después de 3 segundos
+                    new Handler().postDelayed(() -> {
+                        try {
+                            if (mp.isPlaying()) {
+                                mp.stop();
+                            }
+                            mp.release();
+                            Log.d(TAG, "🧪 Test directo completado");
+                        } catch (Exception e) {
+                            Log.e(TAG, "Error limpiando test directo", e);
+                        }
+                    }, 3000);
+
+                } catch (Exception e) {
+                    Log.e(TAG, "❌ TEST DIRECTO: Error al iniciar", e);
+                    showToast("❌ Test directo: Error al iniciar");
+                    mp.release();
+                }
+            });
+
+            testPlayer.setOnErrorListener((mp, what, extra) -> {
+                Log.e(TAG, "❌ TEST DIRECTO: Error - what=" + what + ", extra=" + extra);
+                showToast("❌ Test directo: Error " + what + "/" + extra);
+                mp.release();
+                return true;
+            });
+
+            Log.d(TAG, "🔄 Preparando MediaPlayer directo...");
+            testPlayer.prepareAsync();
+
+        } catch (Exception e) {
+            Log.e(TAG, "❌ TEST DIRECTO: Exception", e);
+            showToast("❌ Test directo: Exception - " + e.getMessage());
+            testPlayer.release();
+        }
+    }
+
+    // Método para mostrar menú de testing completo
+    private void showTestingMenu() {
+        String[] testOptions = {
+                "🧪 Test URL Conocida",
+                "🔊 Test Configuración Audio",
+                "🌐 Test Conectividad",
+                "🎵 Test MediaPlayer Directo",
+                "🔍 Test Backend Preview",
+                "🎤 Test Múltiples Artistas",
+                "📊 Debug Estado Completo",
+                "🔄 Test Completo (Todo)"
+        };
+
+        androidx.appcompat.app.AlertDialog.Builder builder =
+                new androidx.appcompat.app.AlertDialog.Builder(this);
+        builder.setTitle("🧪 Menú de Testing");
+        builder.setItems(testOptions, (dialog, which) -> {
+            switch (which) {
+                case 0:
+                    musicPlayer.testWithKnownWorkingUrl();
+                    showToast("🧪 Test URL conocida ejecutándose...");
+                    break;
+                case 1:
+                    musicPlayer.testDeviceAudioConfig();
+                    showToast("🔊 Test audio config - revisa logs");
+                    break;
+                case 2:
+                    musicPlayer.testBasicConnectivity();
+                    showToast("🌐 Test conectividad - revisa logs");
+                    break;
+                case 3:
+                    testDirectMediaPlayer();
+                    showToast("🎵 Test MediaPlayer directo ejecutándose...");
+                    break;
+                case 4:
+                    testBackendPreviewStatus();
+                    showToast("🔍 Test backend - revisa logs");
+                    break;
+                case 5:
+                    testBackendMultipleArtists();
+                    showToast("🎤 Test artistas - revisa logs");
+                    break;
+                case 6:
+                    debugMusicPlayerState();
+                    showToast("📊 Debug estado - revisa logs");
+                    break;
+                case 7:
+                    runCompleteTestSequence();
+                    showToast("🔄 Test completo iniciado - revisa logs");
+                    break;
+            }
+        });
+        builder.setNegativeButton("Cancelar", null);
+        builder.show();
+    }
+
+    // Secuencia de test completo
+    private void runCompleteTestSequence() {
+        Log.d(TAG, "🧪 === INICIANDO SECUENCIA DE TEST COMPLETO ===");
+
+        // Test 1: Configuración de audio (inmediato)
+        musicPlayer.testDeviceAudioConfig();
+
+        // Test 2: Conectividad básica (1 segundo después)
+        new Handler().postDelayed(() -> {
+            musicPlayer.testBasicConnectivity();
+        }, 1000);
+
+        // Test 3: Backend status (2 segundos después)
+        new Handler().postDelayed(() -> {
+            testBackendPreviewStatus();
+        }, 2000);
+
+        // Test 4: URL conocida (4 segundos después)
+        new Handler().postDelayed(() -> {
+            musicPlayer.testWithKnownWorkingUrl();
+        }, 4000);
+
+        // Test 5: MediaPlayer directo (7 segundos después)
+        new Handler().postDelayed(() -> {
+            testDirectMediaPlayer();
+        }, 7000);
+
+        // Test 6: Debug estado final (10 segundos después)
+        new Handler().postDelayed(() -> {
+            debugMusicPlayerState();
+            showToast("🧪 Secuencia de test completo finalizada");
+        }, 10000);
+
+        Log.d(TAG, "🧪 Secuencia programada - resultados en los próximos 10 segundos");
+    }
+
+    // Long click en la imagen del álbum para acceder al menú de testing
+    private void setupAdvancedTesting() {
+        if (ivAlbumArt != null) {
+            ivAlbumArt.setOnLongClickListener(v -> {
+                showTestingMenu();
+                return true;
+            });
+            Log.d(TAG, "🧪 Testing avanzado: Long click en imagen del álbum");
+        }
     }
 
     // ========================================
@@ -492,6 +933,16 @@ public class MusicPlayerActivity extends AppCompatActivity implements MusicPlaye
             updatePlayPauseButton(false);
             progressHandler.removeCallbacks(progressRunnable);
             showToast("❌ Error: " + error);
+
+            // Si hay error, ofrecer opciones de testing
+            new Handler().postDelayed(() -> {
+                new androidx.appcompat.app.AlertDialog.Builder(this)
+                        .setTitle("❌ Error de Reproducción")
+                        .setMessage("Se detectó un error. ¿Quieres ejecutar tests de diagnóstico?")
+                        .setPositiveButton("SÍ, DIAGNOSTICAR", (d, w) -> showTestingMenu())
+                        .setNegativeButton("Ahora no", null)
+                        .show();
+            }, 1000);
         });
     }
 
@@ -536,5 +987,8 @@ public class MusicPlayerActivity extends AppCompatActivity implements MusicPlaye
         if (musicPlayer != null && musicPlayer.isPlaying()) {
             progressHandler.post(progressRunnable);
         }
+
+        // Configurar testing avanzado al reanudar
+        setupAdvancedTesting();
     }
 }

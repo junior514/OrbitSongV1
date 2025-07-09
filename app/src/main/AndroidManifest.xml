@@ -27,19 +27,32 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
 
-        <!-- ✅ MusicPlayerActivity con configuración completa -->
+        <!-- ✅ CORREGIDO: LibraryActivity con configuración completa -->
         <activity
-            android:name=".activities.MusicPlayerActivity"
+            android:name=".activities.LibraryActivity"
             android:exported="false"
+            android:label="Mi Biblioteca Musical"
             android:parentActivityName=".activities.HomeActivity"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTop"
             android:theme="@style/Theme.OrbitSongV1">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.HomeActivity" />
         </activity>
 
+        <!-- ✅ MusicPlayerActivity con configuración completa -->
+        <activity
+            android:name=".activities.MusicPlayerActivity"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:parentActivityName=".activities.HomeActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.OrbitSongV1">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.HomeActivity" />
+        </activity>
+
+        <!-- MainActivity - Launcher -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -50,11 +63,13 @@
             </intent-filter>
         </activity>
 
+        <!-- LoginActivity -->
         <activity
             android:name=".activities.LoginActivity"
             android:exported="false"
             android:theme="@style/Theme.OrbitSongV1" />
 
+        <!-- HomeActivity -->
         <activity
             android:name=".activities.HomeActivity"
             android:exported="false"

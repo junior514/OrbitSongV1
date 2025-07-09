@@ -9,14 +9,11 @@
     <!-- Colores de fondo -->
     <color name="background_primary">#121212</color>
     <color name="background_secondary">#1e1e1e</color>
-    <color name="card_background">#2a2a2a</color>
     <color name="card_background_translucent">#40FFFFFF</color>
 
     <!-- Colores de texto -->
     <color name="white">#FFFFFF</color>
-    <color name="white_translucent">#B3FFFFFF</color>
     <color name="black">#000000</color>
-    <color name="text_secondary">#B3FFFFFF</color>
 
     <!-- Colores de estado -->
     <color name="success">#4CAF50</color>
@@ -34,8 +31,40 @@
     <color name="purple_700">#FF3700B3</color>
     <color name="teal_200">#FF03DAC5</color>
     <color name="teal_700">#FF018786</color>
+    <color name="colorPrimaryVariant">#3700B3</color>
+    <color name="colorSecondary">#03DAC6</color>
+    <color name="colorSecondaryVariant">#018786</color>
+    <color name="colorAccent">#FF4081</color>
 
-    <color name="colorAccent">#03DAC5</color>
+    <!-- Colores de fondo -->
+    <color name="background_color">#F5F5F5</color>
+    <color name="surface_color">#FFFFFF</color>
+    <color name="card_background">#FFFFFF</color>
+
+    <!-- Colores de texto -->
+    <color name="text_primary">#212121</color>
+    <color name="text_secondary">#757575</color>
+    <color name="text_hint">#BDBDBD</color>
+
+    <!-- Colores de estado -->
+    <color name="success_color">#4CAF50</color>
+    <color name="error_color">#F44336</color>
+    <color name="warning_color">#FF9800</color>
+    <color name="info_color">#2196F3</color>
+
+    <!-- Colores específicos para música -->
+    <color name="music_primary">#1DB954</color>
+    <color name="music_secondary">#191414</color>
+    <color name="preview_indicator">#FF4081</color>
+    <color name="popular_indicator">#FFD700</color>
+
+    <!-- Colores con transparencia -->
+    <color name="overlay_dark">#80000000</color>
+    <color name="overlay_light">#80FFFFFF</color>
+    <color name="ripple_color">#20000000</color>
+    <color name="white_translucent">#B3FFFFFF</color>
     <color name="colorPrimary">#6200EE</color>
-    <color name="colorOnPrimary">#FFFFFF</color>
+
+
+
 </resources>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Fondo con gradiente -->
+    <item>
+        <shape>
+            <gradient
+                android:angle="135"
+                android:startColor="@color/colorPrimary"
+                android:endColor="@color/colorPrimaryVariant"
+                android:type="linear" />
+        </shape>
+    </item>
+
+    <!-- Logo centrado -->
+    <item
+        android:drawable="@drawable/ic_music_note_large"
+        android:gravity="center" />
+
+</layer-list>

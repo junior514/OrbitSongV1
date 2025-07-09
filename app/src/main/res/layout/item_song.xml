@@ -1,39 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
     app:cardCornerRadius="12dp"
-    app:cardElevation="4dp">
+    app:cardElevation="4dp"
+    app:cardBackgroundColor="@color/card_background"
+
+    android:clickable="true"
+    android:focusable="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="12dp">
+        android:padding="16dp">
 
         <!-- Imagen del álbum -->
         <ImageView
             android:id="@+id/iv_album_cover"
             android:layout_width="60dp"
             android:layout_height="60dp"
-            android:layout_marginEnd="12dp"
-            android:contentDescription="Album Cover"
             android:scaleType="centerCrop"
+            android:src="@drawable/gradient_album_placeholder"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            tools:src="@drawable/gradient_album_placeholder" />
+            app:layout_constraintBottom_toBottomOf="parent" />
 
-        <!-- Contenedor de información principal -->
+        <!-- Contenido principal -->
         <LinearLayout
-            android:id="@+id/layout_song_info"
+            android:id="@+id/layout_content"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginStart="12dp"
+            android:layout_marginStart="16dp"
             android:layout_marginEnd="8dp"
+            android:orientation="vertical"
             app:layout_constraintStart_toEndOf="@id/iv_album_cover"
             app:layout_constraintEnd_toStartOf="@id/layout_actions"
             app:layout_constraintTop_toTopOf="parent"
@@ -44,87 +47,110 @@
                 android:id="@+id/tv_song_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:text="Nombre de la canción"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                android:textColor="@android:color/black"
+                android:textColor="@color/text_primary"
                 android:maxLines="1"
                 android:ellipsize="end"
-                tools:text="Nombre de la Canción" />
+                tools:text="Bad Bunny - Tití Me Preguntó" />
 
             <!-- Nombre del artista -->
             <TextView
                 android:id="@+id/tv_artist_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="Artista"
                 android:textSize="14sp"
-                android:textColor="@android:color/darker_gray"
+                android:textColor="@color/text_secondary"
                 android:maxLines="1"
                 android:ellipsize="end"
-                tools:text="Nombre del Artista" />
+                tools:text="Bad Bunny" />
 
             <!-- Álbum -->
             <TextView
                 android:id="@+id/tv_album_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="1dp"
+                android:text="Álbum"
                 android:textSize="12sp"
-                android:textColor="@android:color/darker_gray"
+                android:textColor="@color/text_hint"
                 android:maxLines="1"
                 android:ellipsize="end"
-                tools:text="Nombre del Álbum" />
+                tools:text="Un Verano Sin Ti" />
 
-            <!-- Contenedor de información adicional -->
+            <!-- Contenedor de chips e información adicional -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
                 android:orientation="horizontal"
-                android:layout_marginTop="4dp">
-
-                <!-- Duración -->
-                <TextView
-                    android:id="@+id/tv_duration"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="12sp"
-                    android:textColor="@android:color/darker_gray"
-                    tools:text="3:45" />
+                android:gravity="center_vertical">
 
                 <!-- Chip de preview -->
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chip_preview"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
                     android:text="Preview 30s"
                     android:textSize="10sp"
-                    app:chipMinHeight="24dp"
-                    app:chipBackgroundColor="@color/colorPrimary"
-                    app:chipStrokeWidth="0dp"
-                    android:visibility="gone" />
+                    android:textColor="@android:color/white"
+                    app:chipBackgroundColor="@color/preview_indicator"
+                    app:chipMinHeight="20dp"
+                    app:chipStartPadding="8dp"
+                    app:chipEndPadding="8dp"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
 
-                <!-- Layout de popularidad -->
+                <!-- Duración -->
+                <TextView
+                    android:id="@+id/tv_duration"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="3:45"
+                    android:textSize="12sp"
+                    android:textColor="@color/text_hint"
+                    android:background="@drawable/duration_background"
+                    android:paddingStart="6dp"
+                    android:paddingEnd="6dp"
+                    android:paddingTop="2dp"
+                    android:paddingBottom="2dp"
+                    tools:text="3:45" />
+
+                <!-- Spacer -->
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="1" />
+
+                <!-- Popularidad -->
                 <LinearLayout
                     android:id="@+id/layout_popularity"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:layout_marginStart="8dp"
                     android:gravity="center_vertical"
-                    android:visibility="gone">
+                    android:visibility="gone"
+                    tools:visibility="visible">
 
                     <ImageView
                         android:layout_width="12dp"
                         android:layout_height="12dp"
-                        android:src="@drawable/ic_trending_up"
-                        android:layout_marginEnd="4dp"
-                        app:tint="@color/colorAccent" />
+                        android:src="@drawable/ic_star_small"
+                        />
 
                     <TextView
                         android:id="@+id/tv_popularity"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginStart="2dp"
+                        android:text="85%"
                         android:textSize="10sp"
-                        android:textColor="@color/colorAccent"
+                        android:textColor="@color/popular_indicator"
+                        android:textStyle="bold"
                         tools:text="85%" />
 
                 </LinearLayout>
@@ -133,43 +159,47 @@
 
         </LinearLayout>
 
-        <!-- Contenedor de acciones -->
+        <!-- Acciones (botones) -->
         <LinearLayout
             android:id="@+id/layout_actions"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
+            android:orientation="vertical"
+            android:gravity="center"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent">
-
-            <!-- Botón de favoritos -->
-            <ImageButton
-                android:id="@+id/btn_favorite"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginEnd="8dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Agregar a favoritos"
-                android:src="@drawable/ic_favorite_border"
-                app:tint="@android:color/darker_gray" />
 
             <!-- Botón de reproducir -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_play"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
                 android:contentDescription="Reproducir"
                 app:icon="@drawable/ic_play_arrow"
                 app:iconGravity="textStart"
                 app:iconPadding="0dp"
                 app:iconSize="24dp"
-                app:backgroundTint="@color/colorPrimary"
+                app:iconTint="@android:color/white"
+                app:backgroundTint="@color/music_primary"
                 app:cornerRadius="24dp"
-                style="@style/Widget.MaterialComponents.Button.Icon" />
+                style="@style/Widget.Material3.Button.UnelevatedButton" />
+
+            <!-- Botón de favoritos -->
+            <ImageButton
+                android:id="@+id/btn_favorite"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginTop="4dp"
+                android:src="@drawable/ic_favorite_border"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Agregar a favoritos"
+                 />
 
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-</androidx.cardview.widget.CardView>
+</com.google.android.material.card.MaterialCardView>
