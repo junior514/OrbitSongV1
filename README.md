@@ -75,7 +75,7 @@ Para Desarrolladores
 
 Clonar el repositorio
 
-bashgit clone https://github.com/tu-usuario/orbitsong.git
+bashgit clone https://github.com/junior514/OrbitSongV1
 cd orbitsong
 
 Configurar Android Studio
